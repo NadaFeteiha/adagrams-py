@@ -1,4 +1,6 @@
 from random import randint
+import collections 
+
 # global pool of letters
 pool = {
     "A": 9, "B": 2, "C": 2, "D": 4, 
@@ -30,7 +32,21 @@ def convert_dict_to_list(dict):
 # ========================================================
 
 def uses_available_letters(word, letter_bank):
-    pass
+    """
+        word: string input word
+        letter_bank: array of drawn letters in a hand.
+    """
+    is_available = True
+    word_dict = collections.Counter(word.upper())
+    letter_bank_dict = collections.Counter(letter_bank)
+
+    for letter, count in word_dict.items():
+        if letter_bank_dict[letter] >= count:
+            continue  
+        else:
+            return False
+
+    return is_available
 
 def score_word(word):
     pass
