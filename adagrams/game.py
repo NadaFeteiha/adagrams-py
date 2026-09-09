@@ -2,7 +2,7 @@ from random import randint
 import collections 
 
 # global pool of letters
-pool = {
+POOL = {
     "A": 9, "B": 2, "C": 2, "D": 4, 
     "E": 12,  "F": 2,  "G": 3,  "H": 2, 
     "I": 9 , "J": 1,  "K":1,  "L": 4, 
@@ -11,8 +11,18 @@ pool = {
     , "X": 1, "Y":2, "Z": 1 
 }
 
+SCORE_WORD = {
+    1: ["A", "E", "I", "O", "U", "L", "N", "R", "S", "T"],
+    2: ["D", "G"],
+    3: ["B", "C", "M", "P"],
+    4: ["F" ,"H", "V", "W", "Y"],
+    5:["K"],
+    8:["J", "X"],
+    10:["Q", "Z"]
+}
+
 def draw_letters():
-    letter_pool = convert_dict_to_list(pool)
+    letter_pool = convert_dict_to_list(POOL)
     random_array = []
 
     for _ in range(10):
@@ -24,7 +34,7 @@ def draw_letters():
 # =============== helper functions =============
 def convert_dict_to_list(dict):
     letters = []
-    for letter, quantity in pool.items():
+    for letter, quantity in POOL.items():
         for _ in range(quantity):
             letters.append(letter)
     return letters
@@ -47,9 +57,25 @@ def uses_available_letters(word, letter_bank):
             return False
 
     return is_available
-
+    
 def score_word(word):
-    pass
+    """
+    word: string of characters
+    Returns  integer representing the number of points
+    """
+    score = 0
+    _word = word.upper()
+
+    for letter in _word:
+        for key,letters in SCORE_WORD.items():
+            if letter in letters:
+                score+= key
+
+    if len(word)>= 7 and len(word)<= 10:
+        score+= 8
+
+    return score
+
 
 def get_highest_word_score(word_list):
     pass
