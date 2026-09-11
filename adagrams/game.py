@@ -1,49 +1,6 @@
 from random import randint
-
-# global pool of letters
-POOL = {
-    "A": 9,
-    "B": 2,
-    "C": 2,
-    "D": 4,
-    "E": 12,
-    "F": 2,
-    "G": 3,
-    "H": 2,
-    "I": 9,
-    "J": 1,
-    "K": 1,
-    "L": 4,
-    "M": 2,
-    "N": 6,
-    "O": 8,
-    "P": 2,
-    "Q": 1,
-    "R": 6,
-    "S": 4,
-    "T": 6,
-    "U": 4,
-    "V": 2,
-    "W": 2,
-    "X": 1,
-    "Y": 2,
-    "Z": 1,
-}
-
-SCORE_WORD = {
-    1: ["A", "E", "I", "O", "U", "L", "N", "R", "S", "T"],
-    2: ["D", "G"],
-    3: ["B", "C", "M", "P"],
-    4: ["F", "H", "V", "W", "Y"],
-    5: ["K"],
-    8: ["J", "X"],
-    10: ["Q", "Z"],
-}
-
-LETTER_SCORE = {}
-for _score, _letters in SCORE_WORD.items():
-    for _letter in _letters:
-        LETTER_SCORE[_letter] = _score
+from .logic_helper import *
+from .constants import *
 
 
 def draw_letters():
@@ -57,40 +14,13 @@ def draw_letters():
 
     return random_array
 
-
-# =============== helper functions =============
-def convert_dict_to_list(letter_pool_dict):
-    letters = []
-    for letter, quantity in letter_pool_dict.items():
-        for _ in range(quantity):
-            letters.append(letter)
-    return letters
-
-def find_max(numbers):
-    largest = numbers[0]
-    for number in numbers:
-        if number > largest:
-            largest = number
-    return largest
-
-def get_capitalize_letter_frequently(word):
-    output ={}
-    for c in word:
-        c = c.upper()
-        output[c] = output.get(c, 0) + 1
-    return output
-
-# ========================================================
-
-
 def uses_available_letters(word, letter_bank):
     """
     word: string input word
     letter_bank: array of drawn letters in a hand.
     """
-    is_available = True
-    word_dict = get_capitalize_letter_frequently(word)
-    letter_bank_dict = get_capitalize_letter_frequently(letter_bank)
+    word_dict = get_letter_frequency(word)
+    letter_bank_dict = get_letter_frequency(letter_bank)
 
     for letter, count in word_dict.items():
         if letter_bank_dict.get(letter, 0) >= count:
@@ -98,7 +28,7 @@ def uses_available_letters(word, letter_bank):
         else:
             return False
 
-    return is_available
+    return True
 
 
 def score_word(word):
@@ -118,11 +48,24 @@ def score_word(word):
 
 
 def get_highest_word_score(word_list):
+    """
+    word_list: list of submitted words
+
+    main condition to win:
+        - the highest score
+
+    in case of a tie (same highest score):
+        - the word with the fewest letters wins
+        - unless one of the tied words has exactly 10 letters,
+          then that 10-letter word wins instead
+        - if still tied (same score, same length), the first
+          word in word_list wins
+    """
     if not word_list:
         return ("", 0)
 
+    # group words by their score, so words sharing the top score are kept together
     words_score = {}
-
     for word in word_list:
         score = score_word(word)
         if score not in words_score:
@@ -134,6 +77,7 @@ def get_highest_word_score(word_list):
 
     tied_words = words_score[max_score]
 
+    # tie-break rule 1: a 10-letter word beats any other length
     ten_letter_word = None
     for word in tied_words:
         if len(word) == 10:
@@ -143,6 +87,9 @@ def get_highest_word_score(word_list):
     if ten_letter_word:
         winning_word = ten_letter_word
     else:
+        # tie-break rule 2: otherwise the shortest word wins;
+        # using "<" (not "<=") keeps the first word seen on equal length,
+        # which covers tie-break rule 3 (same score and length -> first in list)
         winning_word = tied_words[0]
         for word in tied_words:
             if len(word) < len(winning_word):
