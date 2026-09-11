@@ -62,6 +62,12 @@ def convert_dict_to_list(letter_pool_dict):
             letters.append(letter)
     return letters
 
+def find_max(numbers):
+    largest = numbers[0]
+    for number in numbers:
+        if number > largest:
+            largest = number
+    return largest
 
 # ========================================================
 
@@ -104,6 +110,9 @@ def score_word(word):
 
 
 def get_highest_word_score(word_list):
+    if not word_list:
+        return ("", 0)
+
     words_score = {}
 
     for word in word_list:
@@ -112,9 +121,8 @@ def get_highest_word_score(word_list):
             words_score[score] = []
         words_score[score].append(word)
 
-    max_score = 0
-    for score in words_score:
-        max_score = max(max_score, score)
+    all_scores = list(words_score.keys())
+    max_score = find_max(all_scores)
 
     tied_words = words_score[max_score]
 
