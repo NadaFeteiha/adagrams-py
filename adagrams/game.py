@@ -1,5 +1,4 @@
 from random import randint
-import collections
 
 # global pool of letters
 POOL = {
@@ -41,6 +40,11 @@ SCORE_WORD = {
     10: ["Q", "Z"],
 }
 
+LETTER_SCORE = {}
+for _score, _letters in SCORE_WORD.items():
+    for _letter in _letters:
+        LETTER_SCORE[_letter] = _score
+
 
 def draw_letters():
     letter_pool = convert_dict_to_list(POOL)
@@ -69,6 +73,13 @@ def find_max(numbers):
             largest = number
     return largest
 
+def get_capitalize_letter_frequently(word):
+    output ={}
+    for c in word:
+        c = c.upper()
+        output[c] = output.get(c, 0) + 1
+    return output
+
 # ========================================================
 
 
@@ -78,11 +89,11 @@ def uses_available_letters(word, letter_bank):
     letter_bank: array of drawn letters in a hand.
     """
     is_available = True
-    word_dict = collections.Counter(word.upper())
-    letter_bank_dict = collections.Counter(letter.upper() for letter in letter_bank)
+    word_dict = get_capitalize_letter_frequently(word)
+    letter_bank_dict = get_capitalize_letter_frequently(letter_bank)
 
     for letter, count in word_dict.items():
-        if letter_bank_dict[letter] >= count:
+        if letter_bank_dict.get(letter, 0) >= count:
             continue
         else:
             return False
@@ -96,12 +107,9 @@ def score_word(word):
     Returns  integer representing the number of points
     """
     score = 0
-    _word = word.upper()
 
-    for letter in _word:
-        for key, letters in SCORE_WORD.items():
-            if letter in letters:
-                score += key
+    for letter in word:
+        score += LETTER_SCORE[letter.upper()]
 
     if len(word) >= 7 and len(word) <= 10:
         score += 8
